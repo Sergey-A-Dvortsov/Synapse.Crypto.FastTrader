@@ -1,4 +1,6 @@
-﻿using System;
+﻿using bybit.net.api.Models;
+using Synapse.Crypto.Trading;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -54,14 +56,100 @@ namespace Synapse.Crypto.FastTrader
 
         }
 
-        public static string[] GetBfxSymbols()
+        public static string[] GetAssets()
         {
-            return ["BTC","ETH", "SOL", "AVAX", "XRP", "ADA", "LINK", "LTC", "DOGE", "DOT", "GALA", "APE", "TON", "ETC", "XAUt", "SUI"];
+            return ["BTC", "ETH", "SOL", "AVAX", "XRP", "ADA", "LINK", "LTC", "DOGE", "DOT", "GALA", "APE", "TON", "ETC", "XAUt", "SUI"];
         }
 
+        public static string[] GetBfxSymbols(string category)
+        {
+            var symbols = GetAssets();
 
+            // Списки инструментов Bitfinex
+            // 1. Spot.USDT
+            // 2. Spot.BTC
+            // 3. Linear.USDT
+            // 4. Linear.BTC
+
+
+            switch (category)
+            {
+                case "Spot.USDT":
+                    return symbols;
+                case "Spot.BTC":
+                    return ["ETH", "SOL", "XRP", "LTC", "DOT"];
+                case "Linear.USDT":
+                    return symbols;
+                case "Linear.BTC":
+                    return ["ETH", "XRP", "LTC", "XAUt"];
+                default:
+                    break;
+            }
+
+            return null;
+        }
+
+        public static string[] GetBybitSymbols(string category)
+        {
+            var symbols = GetAssets();
+
+            // Списки инструментов Bybit
+            // 1. Spot.USDT
+            // 2. Spot.USDC
+            // 3. Spot.USDE
+            // 4. Spot.BTC
+            // 5. Linear.USDT
+            // 6. Linear.USDC
+            // 7. Inverse.USD
+            // 8. Calendar.USDT
+
+            switch (category)
+            {
+                case "Spot.USDT":
+                    return symbols;
+                case "Spot.USDC":
+                    return [.. symbols.Except(["GALA", "ETC", "XAUt"])];
+                case "Spot.USDE":
+                    return ["BTC", "ETH", "SOL"];
+                case "Spot.BTC":
+                    return ["ETH", "SOL", "XRP", "LTC", "DOT"];
+                case "Linear.USDT":
+                    return [.. symbols.Append("PAXG")];
+                case "Linear.USDC":
+                    return [.. symbols.Except(["AVAX", "ADA", "GALA", "APE"]).Append("PAXG")];
+                case "Inverse.USD":
+                    return [.. symbols.Except(["GALA", "APE", "XAUt"])];
+                case "Calendar.USDT":
+                    return ["BTC", "ETH", "SOL", "XRP", "DOG"];
+                default:
+                    break;
+            }
+
+            return null;
+        }
+
+        public static Category GetBybitCategory(string category)
+        {
+            var type = category.Split(".")[0];
+            if (type == "Spot")
+                return Category.SPOT;
+            else if (type == "Linear" || type == "Calendar")
+                return Category.LINEAR;
+            else
+                return Category.INVERSE;
+        }
+
+        public static InstrumentTypes GetBfxInstrumentTipe(string category)
+        {
+            var type = category.Split(".")[0];
+
+            if (type == "Spot")
+                return InstrumentTypes.Spot;
+            else
+                return InstrumentTypes.Linear;
+        }
 
     }
 }
 
-//"tXBT:USD"
+
