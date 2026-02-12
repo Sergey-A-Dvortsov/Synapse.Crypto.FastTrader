@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NLog;
+using Synapse.General;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,6 +10,8 @@ namespace Synapse.Crypto.FastTrader
     {
 
         public string rootFolder = @"D:\\Storage\\BookQuotes";
+
+        private Logger logger = LogManager.GetCurrentClassLogger();
 
         private Dictionary<string, Dictionary<string, List<BestQuote>>> bbSymbols;
         private Dictionary<string, Dictionary<string, List<BestQuote>>> bfxSymbols;
@@ -20,41 +24,57 @@ namespace Synapse.Crypto.FastTrader
             rootFolder = bw.rootFolder;
         }
 
-        public void LoadQuotes()
+        public bool LoadQuotes()
         {
-            var bbFolder = Path.Combine(rootFolder, "Bybit");
 
-            foreach(var item in bbSymbols)
+            try
             {
-                var typeFolder = Path.Combine(bbFolder, item.Key);
 
-                foreach (var item2 in item.Value)
+                var bbFolder = Path.Combine(rootFolder, "Bybit");
+
+                foreach (var item in bbSymbols)
                 {
-                    var file = Path.Combine(typeFolder, $"{item2.Key}.csv");
-                    var lines = File.ReadAllLines(file);
+                    var typeFolder = Path.Combine(bbFolder, item.Key);
 
-                    List<BestQuote> quotes = [.. lines.Select(l => BestQuote.Parse(l).GetValueOrDefault())];
-                    item.Value[item2.Key] = quotes;
+                    foreach (var item2 in item.Value)
+                    {
+                        var file = Path.Combine(typeFolder, $"{item2.Key.Replace("/", "_")}.csv");
+                        var lines = File.ReadAllLines(file);
+
+                        List<BestQuote> quotes = [.. lines.Select(l => BestQuote.Parse(l).GetValueOrDefault())];
+                        item.Value[item2.Key] = quotes;
+                    }
                 }
+
+                var bfxFolder = Path.Combine(rootFolder, "Bfx");
+
+                foreach (var item in bfxSymbols)
+                {
+                    var typeFolder = Path.Combine(bfxFolder, item.Key);
+
+                    foreach (var item2 in item.Value)
+                    {
+                        var file = Path.Combine(typeFolder, $"{item2.Key.Replace(":", "_")}.csv");
+                        var lines = File.ReadAllLines(file);
+
+                        List<BestQuote> quotes = [.. lines.Select(l => BestQuote.Parse(l).GetValueOrDefault())];
+                        item.Value[item2.Key] = quotes;
+                    }
+                }
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                logger.ToError(ex);
             }
 
-            var bfxFolder = Path.Combine(rootFolder, "Bfx");
-
-            foreach (var item in bfxSymbols)
-            {
-                var typeFolder = Path.Combine(bfxFolder, item.Key);
-
-                foreach (var item2 in item.Value)
-                {
-                    var file = Path.Combine(typeFolder, $"{item2.Key}.csv");
-                    var lines = File.ReadAllLines(file);
-
-                    List<BestQuote> quotes = [.. lines.Select(l => BestQuote.Parse(l).GetValueOrDefault())];
-                    item.Value[item2.Key] = quotes;
-                }
-            }
+            return false;
 
         }
+
+
 
     }
 }

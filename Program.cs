@@ -53,11 +53,18 @@ Console.WriteLine("Hello, Serg!");
 //Task.Delay(100).Wait();
 //var s3 = await bybit.SubscribeOrderBookAsync(InstrumentTypes.LinearFutures, [symbol]);
 
-var wr = new BookWriter();
-await wr.Start();
+//var wr = new BookWriter();
+//await wr.Start();
 
-Console.Read();
-await wr.Stop();
+//Console.Read();
+//await wr.Stop();
+
+var ba = new BookAnalizer();
+ba.LoadQuotes();
+
+
+
+
 Console.Read();
 
 
