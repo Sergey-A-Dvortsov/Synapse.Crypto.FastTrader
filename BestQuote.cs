@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Synapse.Crypto.FastTrader
 {
-    public readonly record struct BestQuote(long Time, double Ask, double Bid, double WAAsk, double WABid)
+    public readonly record struct BestQuote(long Time, double Ask, double Bid, double WAAsk, double WABid) 
     {
         public override string ToString()
         {
@@ -21,6 +21,10 @@ namespace Synapse.Crypto.FastTrader
             return new BestQuote(long.Parse(arr[0]), double.Parse(arr[1]), double.Parse(arr[2]), double.Parse(arr[3]), double.Parse(arr[4]));
         }
 
+        public BestQuote Copy()
+        {
+            return new(this.Time, this.Ask, this.Bid, this.WAAsk, this.WABid); 
+        }
 
     }
 

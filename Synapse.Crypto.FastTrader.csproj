@@ -8,13 +8,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="NLog.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NLog" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Libs\Bitfinex\Bitfinex.Net\Bitfinex.Net.csproj" />
+    <ProjectReference Include="..\..\Synapse\Synapse.General\Synapse.General.csproj" />
     <ProjectReference Include="..\Synapse.Crypto.Bfx\Synapse.Crypto.Bfx.csproj" />
     <ProjectReference Include="..\Synapse.Crypto.Bybit\Synapse.Crypto.Bybit.csproj" />
+    <ProjectReference Include="..\Synapse.Crypto.Trading\Synapse.Crypto.Trading.csproj" />
   </ItemGroup>
 
 </Project>

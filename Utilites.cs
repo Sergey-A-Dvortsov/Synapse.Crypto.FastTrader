@@ -77,7 +77,7 @@ namespace Synapse.Crypto.FastTrader
                 case "Spot.USDT":
                     return symbols;
                 case "Spot.BTC":
-                    return ["ETH", "SOL", "XRP", "LTC", "DOT"];
+                    return ["ETH", "SOL", "XRP", "LTC"];
                 case "Linear.USDT":
                     return symbols;
                 case "Linear.BTC":
@@ -112,7 +112,7 @@ namespace Synapse.Crypto.FastTrader
                 case "Spot.USDE":
                     return ["BTC", "ETH", "SOL"];
                 case "Spot.BTC":
-                    return ["ETH", "SOL", "XRP", "LTC", "DOT"];
+                    return ["ETH", "SOL", "XRP", "LTC"];
                 case "Linear.USDT":
                     return [.. symbols.Append("PAXG")];
                 case "Linear.USDC":
@@ -120,7 +120,7 @@ namespace Synapse.Crypto.FastTrader
                 case "Inverse.USD":
                     return [.. symbols.Except(["GALA", "APE", "XAUt"])];
                 case "Calendar.USDT":
-                    return ["BTC", "ETH", "SOL", "XRP", "DOG"];
+                    return ["BTC", "ETH", "SOL", "XRP", "DOGE"];
                 default:
                     break;
             }
@@ -139,6 +139,22 @@ namespace Synapse.Crypto.FastTrader
                 return Category.INVERSE;
         }
 
+        public static InstrumentTypes? GetBybitInstrumentType(string category)
+        {
+            var type = category.Split(".")[0];
+
+            if (type == "Spot")
+                return InstrumentTypes.Spot;
+            else if (type == "Linear")
+                return InstrumentTypes.LinearPerpetual;
+            else if (type == "Inverse")
+                return InstrumentTypes.InversePerpetual;
+            else if (type == "Calendar")
+                return InstrumentTypes.LinearFutures;
+            else
+                return null;
+        }
+
         public static InstrumentTypes GetBfxInstrumentTipe(string category)
         {
             var type = category.Split(".")[0];
@@ -146,7 +162,7 @@ namespace Synapse.Crypto.FastTrader
             if (type == "Spot")
                 return InstrumentTypes.Spot;
             else
-                return InstrumentTypes.Linear;
+                return InstrumentTypes.LinearPerpetual;
         }
 
     }
