@@ -81,7 +81,7 @@ namespace Synapse.Crypto.FastTrader
                 case "Linear.USDT":
                     return symbols;
                 case "Linear.BTC":
-                    return ["ETH", "XRP", "LTC", "XAUt"];
+                    return ["ETH", "XRP", "LTC"];
                 default:
                     break;
             }

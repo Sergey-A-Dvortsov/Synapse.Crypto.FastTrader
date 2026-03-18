@@ -1,4 +1,5 @@
 ﻿using bybit.net.api.Models;
+using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.SharedApis;
 using CryptoExchange.Net.Sockets.Default;
 using Microsoft.Extensions.Logging;
@@ -50,16 +51,16 @@ namespace Synapse.Crypto.FastTrader
 
         public BookWriter()
         {
-            var config = new LoggingConfiguration();
+            //var config = new LoggingConfiguration();
 
-            // Создание консольного таргета
-            var consoleTarget = new ColoredConsoleTarget("console")
-            {
-                Layout = @"${date:format=HH\:mm\:ss} ${level:uppercase=true} ${message} ${exception}"
-            };
+            //// Создание консольного таргета
+            //var consoleTarget = new ColoredConsoleTarget("console")
+            //{
+            //    Layout = @"${date:format=HH\:mm\:ss} ${level:uppercase=true} ${message} ${exception}"
+            //};
 
-            config.AddTarget(consoleTarget);
-            config.AddRule(NLog.LogLevel.Debug, NLog.LogLevel.Fatal, consoleTarget);
+            //config.AddTarget(consoleTarget);
+            //config.AddRule(NLog.LogLevel.Debug, NLog.LogLevel.Fatal, consoleTarget);
             //LogManager.Configuration = config;
             logger = LogManager.GetCurrentClassLogger();
             bybit = new();
@@ -74,10 +75,10 @@ namespace Synapse.Crypto.FastTrader
         {
             Console.WriteLine("Start");
             logger.Info("Start");
-            bybit.FastBookUpdate += Bybit_FastBookUpdate;
+            bybit.OrderBookUpdate += Bybit_BookUpdate;
             bbSecurities = await bybit.LoadSecuritiesAsync();
             
-            bfx.FastBookUpdate += Bfx_FastBookUpdate;
+            bfx.OrderBookUpdate += Bfx_BookUpdate;
 
             bbSymbols = CreateBybitDictionary();
             bfxSymbols = CreateBfxDictionary();
@@ -92,7 +93,7 @@ namespace Synapse.Crypto.FastTrader
 
             timer = new(new TimerCallback(OnTimerTick), null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15));
 
-            bybit.CheckBookPong();
+           bybit.CheckBookPong();
 
             saveTime = DateTime.UtcNow;
 
@@ -192,6 +193,22 @@ namespace Synapse.Crypto.FastTrader
                     if (descr != null)
                     {
                         logger.Info("Подписались на {0} / {1} .", type, symbol);
+
+                        bool debug = true;
+
+                        if (debug)
+                        {
+                            var ss = descr;
+                            ss.ActivityPaused += OnActivityPaused;
+                            ss.ActivityUnpaused += OnActivityUnpaused;
+                            ss.SubscriptionStatusChanged += OnSubscriptionStatusChanged;
+                            ss.ConnectionClosed += OnConnectionClosed;
+                            ss.ConnectionLost += OnConnectionLost;
+                            ss.ConnectionRestored += OnConnectionRestored;
+                            ss.Exception += OnException;
+                            ss.ResubscribingFailed += OnResubscribingFailed;
+                        }
+
                     }
 
                     await Task.Delay(100);
@@ -286,12 +303,12 @@ namespace Synapse.Crypto.FastTrader
 
         }
 
-        private void Bfx_FastBookUpdate(FastBook obj)
+        private void Bfx_BookUpdate(OrderBook obj)
         {
             // throw new NotImplementedException();
         }
 
-        private void Bybit_FastBookUpdate(FastBook fb)
+        private void Bybit_BookUpdate(OrderBook fb)
         {
             if (fb.Type == InstrumentTypes.Spot)
             {
@@ -452,5 +469,46 @@ namespace Synapse.Crypto.FastTrader
             return diclone;
 
         }
+
+        private void OnActivityPaused()
+        {
+            logger.Info("ActivityPaused. Server is paused");
+        }
+
+        private void OnActivityUnpaused()
+        {
+            logger.Info("ActivityUnpaused. Server is unpaused");
+        }
+
+        private void OnSubscriptionStatusChanged(SubscriptionStatus status)
+        {
+            logger.Info($"SubscriptionStatusChanged. Status={status}");
+        }
+
+        private void OnConnectionClosed()
+        {
+            logger.Info("ConnectionClosed. Connection is closed and will not be recconected");
+        }
+
+        private void OnConnectionLost()
+        {
+            logger.Info("ConnectionLost. The socket will automatically reconnect when possible");
+        }
+
+        private void OnConnectionRestored(TimeSpan ts)
+        {
+            logger.Info($"ConnectionRestored. Connection is restored. Ts={ts}");
+        }
+
+        private void OnException(Exception ex)
+        {
+            logger.ToError(ex);
+        }
+
+        private void OnResubscribingFailed(Error err)
+        {
+            logger.Info($"ResubscribingFailed. Connection is restored but resubscribing is failed. Error={err}");
+        }
+
     }
 }

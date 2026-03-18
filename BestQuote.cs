@@ -50,5 +50,33 @@ namespace Synapse.Crypto.FastTrader
 
     }
 
+    public readonly record struct SpreadStat(string Coin, DateTime StartTime, DateTime EndTime, 
+        string LmtCat, string MktCat, string LmtSmb, string MktSmb, 
+        int Count, double SellMax, double SellMin, double SellAvg, double SellSD, 
+        double BuyMax, double BuyMin, double BuyAvg, double BuySD)
+    {
+        public override string ToString()
+        {
+            return $"{Coin};{StartTime};{EndTime};{LmtCat};{MktCat};{LmtSmb};{MktSmb};{Count};{SellMax};{SellMin};" +
+                $"{SellAvg};{SellSD};{BuyMax};{BuyMin};{BuyAvg};{BuySD}";
+        }
+
+        public static string Header()
+        {
+            return $"Coin;StartTime;EndTime;LmtCat;MktCat;LmtSmb;MktSmb;Count;SellMax;SellMin;" +
+                $"SellAvg;SellSD;BuyMax;BuyMin;BuyAvg;BuySD";
+        }
+
+
+        public static Spread? Parse(string line)
+        {
+            if (string.IsNullOrEmpty(line)) return null;
+            var arr = line.Split(";");
+            if (arr.Length != 16) return null;
+            return new Spread(DateTime.Parse(arr[0]), double.Parse(arr[1]), double.Parse(arr[2]), double.Parse(arr[3]), double.Parse(arr[4]));
+        }
+
+    }
+
 
 }
